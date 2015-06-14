@@ -1,0 +1,1 @@
+A Windows shell extension that lets its user easily add new entries to the SendTo folder. Just mark any file, go to the SendTo folder and click on ‘Add here’. Easy like that.
