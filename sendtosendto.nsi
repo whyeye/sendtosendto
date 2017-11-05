@@ -8,7 +8,7 @@
 !define NAME "sendtosendto"
 ;!define PUBSRC "1"
 !packhdr "$%TEMP%\exehead.tmp" "upx.exe --best $%TEMP%\exehead.tmp"
- 
+
 Name "${NAME}"
 Caption "${NAME}"
 SubCaption 3 " "
@@ -60,7 +60,7 @@ Var Settings
 	!insertmacro "GetParent"
 	!insertmacro "GetFileExt"
 	!insertmacro "GetParameters"
-  
+
 ; Version Information
 VIProductVersion "${VERSION}"
 VIAddVersionKey "ProductName" "${NAME}"
@@ -82,13 +82,13 @@ SectionEnd
 Function .onInit
 	InitPluginsDir
 	SetOutPath $PLUGINSDIR
-	
+
 	${If} ${AtLeastWin2000}
 		StrCpy "$Settings" "$APPDATA\sendtosendto\settings.ini"
 	${ElseIf} ${AtMostWinME}
 		StrCpy "$Settings" "$EXEDIR\settings.ini"
 	${EndIf}
-	
+
 	ReadINIStr $0 "$Settings" "Meta" "Language"
 	${If} $0 != ""
 		StrCpy $LANGUAGE "$0"
@@ -104,14 +104,14 @@ Function .onGUIInit
 	StrCmp $AddHere "" 0 postAddHere
 	StrCpy "$AddHere" "Add here"
 	postAddHere:
-	
+
 	ReadINIStr $Create "$Settings" "Dialogs" "Create"
 	StrCmp $Create "" 0 postCreate
 	StrCpy "$Create" "$(Create)"
 	StrCmp $Create "" 0 postCreate
 	StrCpy "$Create" "Create"
 	postCreate:
-	
+
 	${GetParameters} $Parameter
 
 	StrCmp $Parameter "/help" HelpParameter
@@ -149,7 +149,7 @@ Function .onGUIInit
 	CreateShortCut "$SENDTO\ $AddHere.lnk" "$R0"
 	WriteINIStr "$Settings" "Dialogs" "AddHere" "$AddHere"
 	WriteINIStr "$Settings" "Dialogs" "Create" "$Create"
-	
+
 	SetFileAttributes "$EXEDIR\settings.ini" HIDDEN
 	Quit
 
@@ -198,7 +198,7 @@ Function theUI
 	${If} $Dialog == error
 		Abort
 	${EndIf}
-	
+
 	Var /GLOBAL Next
 	GetDlgItem $Next $HWNDPARENT 1
 	${NSD_SetText} $Next "$Create"
@@ -209,31 +209,31 @@ Function theUI
 		SendMessage $HWNDPARENT ${WM_SETTEXT} 0 "STR:${NAME}"
 		EnableWindow $Next 0
 	${EndIf}
-	
+
 	${NSD_CreateText} 0 1u 188u 14u "$File"
 	Pop $Text
 	GetFunctionAddress $0 changeText
 	nsDialogs::OnChange	/NOUNLOAD $Text $0
-	
+
 	${NSD_CreateButton} 192u 1u 12u 14u "×"
 	Pop $Delete
 	GetFunctionAddress $0 deleteButton
 	nsDialogs::OnClick	/NOUNLOAD $Delete $0
 	Call changeText
-	
+
 	nsDialogs::Show
 FunctionEnd
 
 Function changeText
 	${NSD_GetText} $Text $0
-	
+
 	${If} $0 != ""
 	${AndIf} $Name != ""
 		EnableWindow $Next 1
 	${Else}
 		EnableWindow $Next 0
 	${EndIf}
-	
+
 	${If} ${FileExists} "$SENDTO\$0.lnk"
 	${AndIf} $0 != ""
 	${AndIf} $Name != ""
@@ -245,16 +245,16 @@ FunctionEnd
 
 Function deleteButton
 	${NSD_GetText} $Text $0
-	
+
 	Delete "$SENDTO\$0.lnk"
 	Call changeText
 FunctionEnd
 
 Function theData
 	WriteINIStr "$Settings" "Meta" "Version" "${VERSION}"
-	
+
 	${NSD_GetText} $Text $TextState
 	CreateShortCut "$SENDTO\$TextState.lnk" "$Input"
-	
+
 	Quit
 FunctionEnd
