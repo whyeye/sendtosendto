@@ -1,13 +1,8 @@
-; Unicode Warning (delete lines to compile for ASCII)
-!if "${NSIS_PACKEDVERSION}" <= 0x2046000
-    !error "Must compile with NSIS 3.0a0 (or later)"
-!endif
-
 ; Definitions
-!define VERSION "1.2.5.0"
+!define VERSION "1.2.6.0"
 !define NAME "sendtosendto"
 ;!define PUBSRC "1"
-!packhdr "$%TEMP%\exehead.tmp" "upx.exe --best $%TEMP%\exehead.tmp"
+; !packhdr "$%TEMP%\exehead.tmp" "upx.exe --best $%TEMP%\exehead.tmp"
 
 Name "${NAME}"
 Caption "${NAME}"
@@ -67,7 +62,7 @@ VIAddVersionKey "ProductName" "${NAME}"
 VIAddVersionKey "FileVersion" "${VERSION}"
 VIAddVersionKey "LegalCopyright" "Jan T. Sott"
 VIAddVersionKey "FileDescription" "Tool to easily add files/folders to the SendTo dialog"
-VIAddVersionKey "Comments" "http://whyeye.org/projects/sendtosendto"
+VIAddVersionKey "Comments" "https://github.com/whyeye/sendtosendto"
 
 ; Pages
 Page Custom theUI theData
@@ -99,18 +94,18 @@ FunctionEnd
 
 Function .onGUIInit
 	ReadINIStr $AddHere "$Settings" "Dialogs" "AddHere"
-	StrCmp $AddHere "" 0 postAddHere
-	StrCpy "$AddHere" "$(AddHere)"
-	StrCmp $AddHere "" 0 postAddHere
-	StrCpy "$AddHere" "Add here"
-	postAddHere:
+	${If} $AddHere == 0
+		StrCpy "$AddHere" "$(AddHere)"
+	${Else}
+		StrCpy "$AddHere" "Add here"
+	${EndIf}
 
 	ReadINIStr $Create "$Settings" "Dialogs" "Create"
-	StrCmp $Create "" 0 postCreate
-	StrCpy "$Create" "$(Create)"
-	StrCmp $Create "" 0 postCreate
-	StrCpy "$Create" "Create"
-	postCreate:
+	${If} $AddHere == 0
+		StrCpy "$Create" "$(Create)"
+	${Else}
+		StrCpy "$Create" "Create"
+	${EndIf}
 
 	${GetParameters} $Parameter
 
@@ -215,7 +210,7 @@ Function theUI
 	GetFunctionAddress $0 changeText
 	nsDialogs::OnChange	/NOUNLOAD $Text $0
 
-	${NSD_CreateButton} 192u 1u 12u 14u "×"
+	${NSD_CreateButton} 192u 1u 12u 14u "x"
 	Pop $Delete
 	GetFunctionAddress $0 deleteButton
 	nsDialogs::OnClick	/NOUNLOAD $Delete $0
@@ -228,7 +223,7 @@ Function changeText
 	${NSD_GetText} $Text $0
 
 	${If} $0 != ""
-	${AndIf} $Name != ""
+	; ${AndIf} $Name != ""
 		EnableWindow $Next 1
 	${Else}
 		EnableWindow $Next 0
@@ -236,7 +231,7 @@ Function changeText
 
 	${If} ${FileExists} "$SENDTO\$0.lnk"
 	${AndIf} $0 != ""
-	${AndIf} $Name != ""
+	; ${AndIf} $Name != ""
 		EnableWindow $Delete 1
 	${Else}
 		EnableWindow $Delete 0
